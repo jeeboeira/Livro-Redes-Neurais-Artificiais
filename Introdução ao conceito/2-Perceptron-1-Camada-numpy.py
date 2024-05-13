@@ -4,7 +4,8 @@ import numpy as np
 entradas = np.array([1, 9, 5])
 pesos = np.array([0.8, 0.1, 0])
 
-
+#Retorna o produto escalar de e sobre p
+#Faz cálculo de entradas e pesos com uso da biblioteca numpy
 def Soma(e, p):
     return e.dot(p)
 
