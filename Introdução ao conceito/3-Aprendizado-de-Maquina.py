@@ -7,7 +7,7 @@ entradas = np.array([[0,0], [0,1], [1,0], [1,1]])
 saidas = np.array([0, 0, 0, 1])
 pesos = np.array([0.0, 0.0])
 
-#Define uma curva de aprendizado
+
 taxaAprendizado = 0.1
 
 # Retorna o produto escalar de e sobre p
