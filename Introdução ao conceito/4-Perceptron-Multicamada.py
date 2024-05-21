@@ -13,10 +13,10 @@ pesos0 = np.array([[-0.424, -0.740, -0.961],
                    [0.358, -0.577, -0.469]])
 pesos1 = np.array([[-0.017], [-0.893], [0.148]])
 # Saída esperada
-saidas = np.array([0, 1, 1, 0])
+saidas = np.array([[0], [1], [1], [0]])
 
 # Número de vezes que a rede será treinada
-nTreinos = 100
+nTreinos = 10000
 # Define uma curva de aprendizado
 # Este valor pode também piorar a eficiência, ou entrar em loop
 taxaAprendizado = 0.3
@@ -40,21 +40,29 @@ for i in range(nTreinos):
     mediaAbsoluta = np.mean(np.abs(erroCamadaSaida))# mean transforma em porcentagem
 
 
-def sigmoidDerivada(sig):
-    return sig * (1 - sig)
-sigDerivada = sigmoid(0.5)
-sigDerivada1 = sigmoidDerivada(sigDerivada)
+    def sigmoidDerivada(sig):
+        return sig * (1 - sig)
+    sigDerivada = sigmoid(0.5)
+    sigDerivada1 = sigmoidDerivada(sigDerivada)
 
-derivadaSaida = sigmoidDerivada(camadaSaida)
-# Parâmetro usado como referência para correto ajuste da descida do gradiente
-#realiza um ajuste fino dos pesos e minimiza suas margens de erro
-deltaSaida = erroCamadaSaida * derivadaSaida
+    derivadaSaida = sigmoidDerivada(camadaSaida)
+    # Parâmetro usado como referência para correto ajuste da descida do gradiente
+    #realiza um ajuste fino dos pesos e minimiza suas margens de erro
+    deltaSaida = erroCamadaSaida * derivadaSaida
 
 
-pesos1Transposta = pesos1.T #.T transposta o array ou matriz
-deltaSaidaXpesos = deltaSaida.dot(pesos1Transposta)
-deltaCamadaOculta = deltaSaidaXpesos * sigmoidDerivada(camadaOculta)
+    pesos1Transposta = pesos1.T #.T transposta o array ou matriz
+    deltaSaidaXpesos = deltaSaida.dot(pesos1Transposta)
+    deltaCamadaOculta = deltaSaidaXpesos * sigmoidDerivada(camadaOculta)
 
-camadaOcultaTransposta = camadaOculta.T
-pesos3 = camadaOcultaTransposta.dot(deltaSaida)
-pesos1 = (pesos1 * momentum) + (pesos3 * taxaAprendizado)
+    # Backpropagation
+    camadaOcultaTransposta = camadaOculta.T
+    pesos3 = camadaOcultaTransposta.dot(deltaSaida) # Produto escalar de camadaOcultaTransposta pelo deltaSaida
+    pesos1 = (pesos1 * momentum) + (pesos3 * taxaAprendizado)
+
+    camadaEntradaTransposta = camadaEntrada.T
+    pesos4 = camadaEntradaTransposta.dot(deltaCamadaOculta)
+    pesos0 = (pesos0 * momentum) + (pesos4 * taxaAprendizado)
+
+    
+    print(f"Treino: {i} margem de erro: " + str(mediaAbsoluta))
