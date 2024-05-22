@@ -16,7 +16,7 @@ pesos1 = np.array([[-0.017], [-0.893], [0.148]])
 saidas = np.array([[0], [1], [1], [0]])
 
 # Número de vezes que a rede será treinada
-nTreinos = 10000
+nTreinos = 100000
 # Define uma curva de aprendizado
 # Este valor pode também piorar a eficiência, ou entrar em loop
 taxaAprendizado = 0.3
