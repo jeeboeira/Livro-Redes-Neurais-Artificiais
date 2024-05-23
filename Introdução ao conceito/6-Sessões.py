@@ -1,4 +1,4 @@
-import tensorflow.compat.v1 as tf
+import tensorflow.compat.v1 as tf # type: ignore
 tf.disable_v2_behavior()
 
 num1 = tf.constant(8)
