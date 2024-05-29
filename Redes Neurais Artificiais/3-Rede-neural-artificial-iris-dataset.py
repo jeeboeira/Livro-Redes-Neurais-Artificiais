@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 #Converte os dados para um mesmo parâmetro
 from sklearn.preprocessing import LabelEncoder
 #
@@ -15,6 +16,9 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 # Fazer validação cruzada
 from sklearn.model_selection import cross_val_score
+#Alimenta nossa validação cruzada
+from keras.wrappers.scikit_learn import KerasClassifier
+#from scikeras.wrappers import KerasClassifier
 
 #Importa os dados da planilha para a variável base
 #base = pd.read_csv('base\iris.csv')
@@ -94,3 +98,35 @@ matrizConfusao = confusion_matrix(previsoes2, steste2)
 
 # Fazer a validação cruzada
     # Divide os dados em partes iguais e checa se os resultados correspondem
+def valCruzada():
+    classificadorValCruzada = Sequential()
+    classificadorValCruzada.add(Dense(units = 4,
+                                      activation = 'relu',
+                                      input_dim = 4))
+    classificadorValCruzada.add(Dense(units = 4,
+                                      activation = 'relu'))
+    classificadorValCruzada.add(Dense(units = 3,
+                                      activation = 'softmax'))
+    classificadorValCruzada.compile(optimizer = 'adam',
+                                    loss = 'categorical_crossentropy',
+                                    metrics = ['categorical_accuracy'])
+    return classificadorValCruzada
+
+
+# Variável que executa KerasClassifier, e recebe a função valCruzada
+classificadorValCruzada = KerasClassifier(build_fn = valCruzada,
+                                          epochs = 1000,
+                                          batch_size = 10) # Taxa de correção de pesos
+
+
+#Divide o processamento em várias partes segundo o cv e as executa
+resultadosValCruzada = cross_val_score(estimator = classificadorValCruzada,
+                                       X = entradas,
+                                       y = saidas,
+                                       cv = 10, #Define em quantas partes minha base sera dividida
+                                                    #igualmente para ser processada
+                                       scoring = 'accuracy')
+
+#
+media = resultadosValCruzada.mean()
+desvio = resultadosValCruzada.std()
