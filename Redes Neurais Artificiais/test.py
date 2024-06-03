@@ -1,13 +1,10 @@
+# Repositório dos dados breast cancer
 from ucimlrepo import fetch_ucirepo
+import numpy as np
 
+breast_cancer_wisconsin_diagnostic = fetch_ucirepo(id=17)
 
-breast_cancer_wisconsin_diagnostic = fetch_ucirepo(id=17) 
-entradas = breast_cancer_wisconsin_diagnostic.data.features 
-saidas = breast_cancer_wisconsin_diagnostic.data.targets
+entradas = breast_cancer_wisconsin_diagnostic.data.features
 
-from sklearn.preprocessing import LabelEncoder
-
-lb = LabelEncoder()
-
-saidasEnc = lb.fit_transform(saidas)
-print(saidasEnc)
+X = entradas.iloc[68].to_numpy()
+print(X)
