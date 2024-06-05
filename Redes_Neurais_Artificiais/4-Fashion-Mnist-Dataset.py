@@ -49,13 +49,15 @@ print(modelo.summary())
 # Define númuero de treinos
 modelo.fit(X_treino,
             y_treino,
-            epochs = 100)
+            epochs = 1)
 
 #Salva as configurações da rede neural, tanto estrutura quanto dados de aprendizado
 modelo_json = modelo.to_json() # usada função to_json para salvar os parâmetros
-with open("fashion_modelo_json", "w") as json_file: #pela função open() definimos o nome do arquivo, 'w' para ser lido sem incompatibilidades
+with open('Redes Neurais Artificiais\Arquivos\Quatro\Fashion_modelo_json', 'w') as json_file: #pela função open() definimos o nome do arquivo, 'w' para ser lido sem incompatibilidades
     json_file.write(modelo_json) # Atualiza os conteúdo do arquivo
 
-modelo.save_weights("fashion_modelo.h5") # Salva os peso, só aplicar o método save_weights, com extensão .h5
+modelo.save_weights('Redes Neurais Artificiais\Arquivos\Quatro\Fashion_modelo.h5') # Salva os peso, só aplicar o método save_weights, com extensão .h5
                                             #para leitura posterior, é só instanciar os dados por meio de uma variável
                                             #e chamar pela função lo.load_weights()
+                                            
+

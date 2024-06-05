@@ -1,7 +1,6 @@
 # Repositório dos dados breast cancer
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
-import numpy as np
 #Converte os dados para um mesmo parâmetro
 from sklearn.preprocessing import LabelEncoder
 # Modelo pré configurado que cria e faz as conexões entre camadas de neurônios
@@ -30,13 +29,13 @@ classificadorA = Sequential()
 #Cria a primeira camada oculta através da função add Dense
 classificadorA.add(Dense(units = 8, # units = quantidade de neurônios na camada oculta
                          activation = 'relu', # Rectfied Linear Units - algo próximo ao StepFunction
-                         kernel_initializer = 'normal',
+                         kernel_initializer = 'random_uniform',
                          input_dim = 30)) # Quantos parâmetros tem nossa camada de entrada
 classificadorA.add(Dropout(0.2))
 # Aqui não é necessário especificar o dim, pois já é implícito
 classificadorA.add(Dense(units = 8,
                          activation = 'relu',
-                         kernel_initializer = 'normal'))
+                         kernel_initializer = 'random_uniform'))
 classificadorA.add(Dropout(0.2))
 classificadorA.add(Dense(units = 1, #camada de saída
                         activation = 'sigmoid'))
@@ -48,8 +47,13 @@ classificadorA.compile(optimizer = 'adam',
 classificadorA.fit(entradas,
                    saidasDf,
                    batch_size = 10, # divide a rede em 10 para teste
-                   epochs = 100) # Roda os teste 100 vezes
+                   epochs = 50) # Roda os teste 50 vezes
 
 #Objeto selecionado aleatóriamente da base de dados para teste
-objeto = X = entradas.iloc[68].to_numpy()
+objeto = entradas.iloc[68].to_frame()
+objetoT = objeto.T
+
+previsorA = classificadorA.predict(objetoT)
+previsorB = (previsorA > 0.5)
+
 
