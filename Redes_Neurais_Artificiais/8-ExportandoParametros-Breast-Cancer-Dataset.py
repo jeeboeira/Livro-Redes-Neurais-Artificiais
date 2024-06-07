@@ -27,7 +27,7 @@ saidasDf = pd.DataFrame(saidasLb)
 classificadorB = Sequential()
 
 #Crio essa rede segundo os parâmetros do Tunning
-#Cria a primeira camada oculta através da função add Dense
+#Cria a primeira camada ou camada de entrada através da função add.
 classificadorB.add(Dense(units = 8, # units = quantidade de neurônios na camada oculta
                          activation = 'relu', # Rectfied Linear Units - algo próximo ao StepFunction
                          kernel_initializer = 'random_uniform',
