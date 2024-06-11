@@ -120,6 +120,8 @@ regressor.fit(entradas,
 previsoes = regressor.predict(entradas)
 saidas.mean()
 previsoes.mean()
+saidaMean = saidas.mean()
+previsoesMean = previsoes.mean()
 
 
 #Validação Cruzada
@@ -141,14 +143,17 @@ def regressorValCruzada():
                        metrics = ['mean_absolute_error'])
     return regressorV
 
+# Executa o regressorV
 regValCruzada = KerasRegressor(build_fn = regressorValCruzada,
                                epochs = 100,
-                               batch_size = 300)
+                               batch_size = 300)# Taxa de correção de pesos
+
 resValCruzada = cross_val_score(estimator = regValCruzada,
                                 X = entradas,
                                 y = saidas,
-                                cv = 10,
-                                scoring = 'neg_mean_absolute_error')
+                                cv = 10, #Define em quantas partes minha base sera dividida
+                                                    #igualmente para ser processada
+                                scoring = 'neg_mean_absolute_error') # Média dos resultados desconsiderando o sinal
 
 media = resValCruzada.mean()
 desvioPadrao = resValCruzada.std()
