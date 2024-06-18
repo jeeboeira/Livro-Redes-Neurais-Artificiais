@@ -9,7 +9,7 @@ from keras.utils import np_utils
 #MaxPooling2D cria micromatrizes indexadas, para identificação
     #de padrões pixel a pixel
 from keras.layers import Conv2D, MaxPooling2D
-from keras.layers.normalization import batch_normalization
+from keras.layers import BatchNormalization
 
 (etreino, streino),(eteste, steste) = mnist.load_data()
 
@@ -39,12 +39,12 @@ classificador.add(Conv2D(32,
                          (3,3),
                          input_shape = (28,28,1),
                          activation = 'relu'))
-classificador.add(batch_normalization())#Faz uma limpeza de pixels borrados
+classificador.add(BatchNormalization())#Faz uma limpeza de pixels borrados
 classificador.add(MaxPooling2D(pool_size = (2,2)))
 classificador.add(Conv2D(32,
                          (3,3),
                          activation = 'relu'))
-classificador.add(batch_normalization())
+classificador.add(BatchNormalization())
 classificador.add(MaxPooling2D(pool_size = (2,2)))
 #Transforma as matrizes para uma dimensão, para cada valor da linha atuar como um neurônio
 classificador.add(Flatten())
@@ -71,3 +71,16 @@ classificador.fit(etreino, # Alimenta a rede
                   batch_size = 128, # Pesos são atualizados a cada 128 amostras
                   epochs = 10, # executa a rede 10x
                   validation_data = (eteste, steste))
+
+
+# Avaliação e predições
+loss, accuracy = classificador.evaluate(etreino, streino)
+predictions = classificador.predict(r'C:\Users\ti2\TestVsCode\Livro-Redes-Neurais-Artificiais-1\Redes_Neurais_convolucionais\Arquivos_Convolucionais\1Um\num3.jpg')
+
+
+
+
+
+
+
+
