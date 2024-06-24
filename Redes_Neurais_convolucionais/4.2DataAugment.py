@@ -1,5 +1,6 @@
 import numpy as np
 from keras.models import Sequential
+from keras import layers, models, optimizers
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.layers import BatchNormalization
 #Reprocessa imagens, a partir de pradrões encontrados
@@ -19,29 +20,31 @@ base_validation_path = r'C:\Users\ti2\TestVsCode\Livro-Redes-Neurais-Artificiais
 
 # Specify how to randomly transform training image data
 train_generator = ImageDataGenerator(
-    rescale            = 1.0/255, # Rescale
-    rotation_range     = 7,       # Randomly rotate
-    horizontal_flip    = True,    # Randomly flipping horizontally
-    shear_range        = 0.2,
-    height_shift_range = 0.07,    # Randomly shift up or down
-    zoom_range         = 0.2      # Randomly zooming in
+    rescale            = 1./255,    # Rescale
+    rotation_range     = 40,        # Randomly rotate
+    width_shift_range  = 0.2,       # Randomly shift left or rigth
+    height_shift_range = 0.2,       # Randomly shift up or down
+    zoom_range         = 0.3,       # Randomly zooming in
+    horizontal_flip    = True,      # Randomly flipping horizontally
+    fill_mode          = 'nearest', # filling in newly created pixels
     )
 
 # Validation image data "intentionally" NOT augmented
-validation_data = ImageDataGenerator(rescale = 1.0/255) #Only rescale ; No Data augmetation
+validation_data = ImageDataGenerator(
+    rescale = 1./255) #Only rescale ; No Data augmetation
 
 # Train Data Augmentation Generator
 base_treino = train_generator.flow_from_directory(
     directory   = base_treino_path, # path to training images
-    target_size = (64,64),          # resize images to 64 x 64
-    batch_size  = 32,               # 32 images in each batch
+    target_size = (150,150),        # resize images to 150 x 150
+    batch_size  = 20,               # 32 images in each batch
     class_mode  = 'binary')         # since there are 2 labels
 
 # Validation Generator
 base_validation = validation_data.flow_from_directory(
     directory   = base_validation_path, # path to validation images
-    target_size = (64,64),              # resize images to 64 x 64
-    batch_size  = 32,                   # 32 images in each batch
+    target_size = (150,150),        # resize images to 150 x 150
+    batch_size  = 20,               # 32 images in each batch
     class_mode  = 'binary')             # since there are 2 labels
 
 #train_generator = train_generator.repeat()
@@ -58,37 +61,39 @@ for batch_images, batch_labels in base_validation:
 #======================================
 
 # build linear stack of layers sequentialy, using 'Sequential()'
-classificador = Sequential()
+classificador = models.Sequential()
 
 # a stack of alternated Conv2D & MaxPooling2D layers
-classificador.add(Conv2D(filters     = 32,
-                         kernel_size = (3,3),      # As matrizes com 64x64 são separadas em blocos de 3x3
-                         input_shape = (64,64,3),  #Imagem é uma matriz 64x64 com 3 canais, no caso rgb
+classificador.add(layers.Conv2D(filters     = 32,
+                         kernel_size = 3,      # As matrizes com 64x64 são separadas em blocos de 3x3
+                         activation  = 'relu',
+                         input_shape = (150, 150 ,3)))  #Imagem é uma matriz 64x64 com 3 canais, no caso rgb
+classificador.add(layers.MaxPooling2D(pool_size = (2,2))) # Transforma em um mapa 2x2 maximum value pixel from the respective region of interest.
+
+classificador.add(layers.Conv2D(filters     = 64,
+                         kernel_size = 3,
                          activation  = 'relu'))
-classificador.add(BatchNormalization())            #Faz uma limpeza de pixels borrados
-classificador.add(MaxPooling2D(pool_size = (2,2))) # Transforma em um mapa 2x2 maximum value pixel from the respective region of interest.
+classificador.add(layers.MaxPooling2D(pool_size = (2,2)))
 
-classificador.add(Conv2D(filters     = 32,
-                         kernel_size = (3,3),
+classificador.add(layers.Conv2D(filters     = 128,
+                         kernel_size = 3,
                          activation  = 'relu'))
-classificador.add(BatchNormalization())
-classificador.add(MaxPooling2D(pool_size = (2,2))) 
+classificador.add(layers.MaxPooling2D(pool_size = (2,2)))
 
-#Transforma as matrizes para uma dimensão, para cada valor da linha atuar como um neurônio
-classificador.add(Flatten())
+classificador.add(layers.Conv2D(filters     = 128,
+                         kernel_size = 3,
+                         activation  = 'relu'))
+classificador.add(layers.MaxPooling2D(pool_size = (2,2)))
 
-#Cria camadas densas
-classificador.add(Dense(units      = 128,
-                        activation = 'relu'))
-classificador.add(Dropout(0.2))
 
-classificador.add(Dense(units      = 128,
-                        activation = 'relu'))
-classificador.add(Dropout(0.2))
+# Flatten, Dropout, Dense
+classificador.add(layers.Flatten())
+classificador.add(layers.Dropout(rate = 0.3))
+classificador.add(layers.Dense(units = 512,
+                               activation = 'relu'))
+classificador.add(layers.Dense(units      = 1,         # Camada de saida com 1 neurônio
+                               activation = 'sigmoid'))
 
-classificador.add(Dense(units      = 1,         # Camada de saida com 1 neurônio
-                        activation = 'sigmoid'))#Sigmoid pois estamos classificando de forma binária
-                                                #Se fossem usadas 3 ou mais amostras usaria softmax
 # Check architecture
 print(classificador.summary())
 
@@ -98,37 +103,35 @@ print(classificador.summary())
 
 # compilation
 classificador.compile(
-    loss      = 'binary_crossentropy', #Uma boa função de custo retorna valores altos para previsões ruins e valores baixos para previsões boas.
-    optimizer = 'adam',
-    metrics   = ['accuracy'])
+    optimizer = optimizers.RMSprop(),
+    loss      = 'binary_crossentropy',
+    metrics   = ['acc'])
 
-#steps_per_epoch = len(base_treino)
-#validation_steps = len(base_validation)
-
+epochs = 5
 # Fit
 classificador_fit = classificador.fit(
     x                = base_treino,     # data provided by generator
-    steps_per_epoch  = 4000,            # Realiza o teste sobre cada amostra, se não hover o valor informado
-    epochs           = 5,               # executa a rede 5x
+    steps_per_epoch  = 400,            # Realiza o teste sobre cada amostra, se não hover o valor informado
+    epochs           = epochs,               # executa a rede 5x
     validation_data  = base_validation, # data provided by generator
-    validation_steps = 1000
+    validation_steps = 100
     )
 
 
 #Visualizar resultados
-plt.plot([i+1 for i in range(5)],
-         classificador_fit.history['accuracy'],
+plt.plot([i+1 for i in range(epochs)],
+         classificador_fit.history['acc'],
          label = 'Training Acc')
-plt.plot([i+1 for i in range(5)],
-         classificador_fit.history['val_accuracy'],
+plt.plot([i+1 for i in range(epochs)],
+         classificador_fit.history['val_acc'],
          label = 'Validation Acc')
-plt.legend(), plt.xlabel("Epochs"), plt.label("Accuracy")
+plt.legend(), plt.xlabel("Epochs"), plt.ylabel("Accuracy")
 
 
 # TESTA UMA IMAGEM
 
 def tratarTeste(imagem):
-    imagem = load_img(imagem, target_size = (64,64))
+    imagem = load_img(imagem, target_size = (150,150))
     imagem = img_to_array(imagem)
     imagem = np.expand_dims(imagem, axis = 0)
     imagem = classificador.predict(imagem)
