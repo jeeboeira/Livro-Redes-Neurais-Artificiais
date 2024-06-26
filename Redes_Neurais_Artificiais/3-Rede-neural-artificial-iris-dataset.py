@@ -1,5 +1,4 @@
 #Método simples de classificação binária
-
 import pandas as pd
 import numpy as np
 #Converte os dados para um mesmo parâmetro

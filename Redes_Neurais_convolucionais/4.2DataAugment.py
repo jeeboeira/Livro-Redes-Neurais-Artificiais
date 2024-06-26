@@ -6,8 +6,8 @@ from keras.layers import BatchNormalization
 #Reprocessa imagens, a partir de pradrões encontrados
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
 
 import pandas as pd
 import matplotlib.pyplot as plt
